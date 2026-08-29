@@ -7,21 +7,29 @@ const STORAGE_KEY = 'sdc_isp_data_v1';
 const AUTH_KEY = 'sdc_isp_auth_v1';
 const SESSION_KEY = 'sdc_isp_session_v1';
 
+/* ---------- Safe storage helpers (never throw, even in private mode) ---------- */
+function safeGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+function safeSet(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+function safeRemove(key) { try { localStorage.removeItem(key); } catch (e) {} }
+function safeSGet(key) { try { return sessionStorage.getItem(key); } catch (e) { return null; } }
+function safeSSet(key, val) { try { sessionStorage.setItem(key, val); } catch (e) {} }
+function safeSRemove(key) { try { sessionStorage.removeItem(key); } catch (e) {} }
+
 /* ---------- Authentication ---------- */
 function getAuth() {
   try {
-    const raw = localStorage.getItem(AUTH_KEY);
+    const raw = safeGet(AUTH_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {}
   // Default admin account
   const def = { username: 'admin', password: 'admin123' };
-  localStorage.setItem(AUTH_KEY, JSON.stringify(def));
+  safeSet(AUTH_KEY, JSON.stringify(def));
   return def;
 }
-function saveAuth(a) { localStorage.setItem(AUTH_KEY, JSON.stringify(a)); }
+function saveAuth(a) { safeSet(AUTH_KEY, JSON.stringify(a)); }
 
-function isLoggedIn() { return sessionStorage.getItem(SESSION_KEY) === '1'; }
-function setLoggedIn(v) { v ? sessionStorage.setItem(SESSION_KEY, '1') : sessionStorage.removeItem(SESSION_KEY); }
+function isLoggedIn() { return safeSGet(SESSION_KEY) === '1'; }
+function setLoggedIn(v) { v ? safeSSet(SESSION_KEY, '1') : safeSRemove(SESSION_KEY); }
 
 function doLogin(e) {
   e.preventDefault();
@@ -38,7 +46,16 @@ function doLogin(e) {
     $('#loginPass').value = '';
     err.classList.remove('show');
     toast('Welcome back, ' + auth.username);
-    switchView('dashboard');
+    // Open the dashboard; if rendering fails (e.g. stale/corrupt data),
+    // reset the data store and retry so the dashboard always opens.
+    try {
+      switchView('dashboard');
+    } catch (err2) {
+      console.error('Dashboard render failed, resetting data:', err2);
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      db = load();
+      switchView('dashboard');
+    }
   } else {
     err.textContent = 'Invalid username or password. Please try again.';
     err.classList.add('show');
@@ -130,12 +147,12 @@ function seedData() {
 let db = load();
 function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = safeGet(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {}
   return seedData();
 }
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
+function save() { safeSet(STORAGE_KEY, JSON.stringify(db)); }
 function uid(prefix) { return prefix + (db.nextIds[prefix]++); }
 
 /* ---------- Helpers ---------- */
@@ -205,7 +222,7 @@ function render(view) {
   else if (view === 'renewals') renderRenewals();
 }
 
-const empty = (msg) => `<tr><td colspan="5"><div class="empty"><div class="empty-icon">📩</div>${msg}</div></td></tr>`;
+const empty = (msg) => `<tr><td colspan="5"><div class="empty"><div class="empty-icon">📭</div>${msg}</div></td></tr>`;
 
 /* ============ DASHBOARD ============ */
 function renderDashboard() {
@@ -261,7 +278,7 @@ function renderDashboard() {
         <td>${r.endDate}</td>
         <td><span class="badge badge-${r.status}">${r.status}</span></td>
       </tr>`;
-    }).join('')}</tbody>` : '';
+    }).join('')}</tbody>` : empty('No upcoming renewals');
 }
 
 /* ============ CUSTOMERS ============ */
@@ -289,7 +306,7 @@ function renderCustomers() {
           <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${c.id}')">Del</button>
         </td>
       </tr>`;
-    }).join('')}</tbody>` : '';
+    }).join('')}</tbody>` : empty('No customers found');
 }
 
 function customerForm(c) {
@@ -406,7 +423,7 @@ function renderBilling() {
           <button class="btn btn-ghost btn-sm" onclick="viewBill('${b.id}')">History</button>
         </td>
       </tr>`;
-    }).join('')}</tbody>` : '';
+    }).join('')}</tbody>` : empty('No bills');
 }
 
 function generateBills() {
@@ -473,7 +490,7 @@ function renderPlans() {
           <button class="btn btn-danger btn-sm" onclick="deletePlan('${p.id}')">Del</button>
         </td>
       </tr>`;
-    }).join('')}</tbody>` : '';
+    }).join('')}</tbody>` : empty('No plans');
 }
 
 function planForm(p) {
@@ -538,7 +555,7 @@ function renderRenewals() {
           <button class="btn btn-ghost btn-sm" onclick="extendPlan('${r.id}')">Extend</button>
         </td>
       </tr>`;
-    }).join('')}</tbody>` : '';
+    }).join('')}</tbody>` : empty('No renewals');
 }
 
 function renewPlan(id) {
@@ -599,7 +616,14 @@ function init() {
     $('#app').classList.add('show');
     $('#userName').textContent = auth.username;
     $('#userAvatar').textContent = (auth.username[0] || 'A').toUpperCase();
-    switchView('dashboard');
+    try {
+      switchView('dashboard');
+    } catch (err) {
+      console.error('Dashboard render failed on load, resetting data:', err);
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      db = load();
+      switchView('dashboard');
+    }
   } else {
     $('#loginScreen').classList.remove('hidden');
     $('#app').classList.remove('show');
