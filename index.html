@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDC ISP — Billing Management</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">SDC</div>
+        <div class="brand-text">
+          <h1>SDC ISP</h1>
+          <span>Billing Manager</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
+        <button class="nav-item" data-view="customers"><span class="nav-icon">👥</span> Customers</button>
+        <button class="nav-item" data-view="billing"><span class="nav-icon">🧾</span> Billing</button>
+        <button class="nav-item" data-view="plans"><span class="nav-icon">📡</span> Plans</button>
+        <button class="nav-item" data-view="renewals"><span class="nav-icon">🔄</span> Renewals</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="storage-status"><span class="dot"></span> Data saved locally</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" id="quickAddBtn">+ New Customer</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="view active" id="view-dashboard">
+          <div class="stats-grid" id="statsGrid"></div>
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header"><h3>Recent Bills</h3><button class="btn btn-ghost" data-goto="billing">View all</button></div>
+              <div class="table-wrap"><table class="table" id="recentBillsTable"></table></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>Upcoming Renewals</h3><button class="btn btn-ghost" data-goto="renewals">View all</button></div>
+              <div class="table-wrap"><table class="table" id="upcomingRenewalsTable"></table></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" id="view-customers">
+          <div class="card">
+            <div class="card-header">
+              <h3>All Customers</h3>
+              <div class="card-actions">
+                <input type="text" class="input search-input" id="customerSearch" placeholder="Search customers..." />
+                <button class="btn btn-primary" id="addCustomerBtn">+ Add Customer</button>
+              </div>
+            </div>
+            <div class="table-wrap"><table class="table" id="customersTable"></table></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-billing">
+          <div class="card">
+            <div class="card-header">
+              <h3>Bills & Payments</h3>
+              <div class="card-actions">
+                <select class="input" id="billingStatusFilter">
+                  <option value="all">All statuses</option>
+                  <option value="paid">Paid</option>
+                  <option value="pending">Pending</option>
+                  <option value="overdue">Overdue</option>
+                </select>
+                <button class="btn btn-primary" id="generateBillsBtn">Generate Monthly Bills</button>
+              </div>
+            </div>
+            <div class="table-wrap"><table class="table" id="billsTable"></table></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-plans">
+          <div class="card">
+            <div class="card-header"><h3>Internet Plans</h3><button class="btn btn-primary" id="addPlanBtn">+ Add Plan</button></div>
+            <div class="table-wrap"><table class="table" id="plansTable"></table></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-renewals">
+          <div class="card">
+            <div class="card-header">
+              <h3>Renewals</h3>
+              <div class="card-actions">
+                <select class="input" id="renewalFilter">
+                  <option value="all">All</option>
+                  <option value="upcoming">Upcoming</option>
+                  <option value="expired">Expired</option>
+                  <option value="active">Active</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-wrap"><table class="table" id="renewalsTable"></table></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle">Title</h3>
+          <button class="modal-close" id="modalClose">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
