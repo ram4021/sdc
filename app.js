@@ -4,103 +4,11 @@
    ============================================================ */
 
 const STORAGE_KEY = 'sdc_isp_data_v1';
-const AUTH_KEY = 'sdc_isp_auth_v1';
-const SESSION_KEY = 'sdc_isp_session_v1';
 
 /* ---------- Safe storage helpers (never throw, even in private mode) ---------- */
 function safeGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
 function safeSet(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
 function safeRemove(key) { try { localStorage.removeItem(key); } catch (e) {} }
-function safeSGet(key) { try { return sessionStorage.getItem(key); } catch (e) { return null; } }
-function safeSSet(key, val) { try { sessionStorage.setItem(key, val); } catch (e) {} }
-function safeSRemove(key) { try { sessionStorage.removeItem(key); } catch (e) {} }
-
-/* ---------- Authentication ---------- */
-function getAuth() {
-  try {
-    const raw = safeGet(AUTH_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (e) {}
-  // Default admin account
-  const def = { username: 'admin', password: 'admin123' };
-  safeSet(AUTH_KEY, JSON.stringify(def));
-  return def;
-}
-function saveAuth(a) { safeSet(AUTH_KEY, JSON.stringify(a)); }
-
-function isLoggedIn() { return safeSGet(SESSION_KEY) === '1'; }
-function setLoggedIn(v) { v ? safeSSet(SESSION_KEY, '1') : safeSRemove(SESSION_KEY); }
-
-function doLogin(e) {
-  e.preventDefault();
-  const u = $('#loginUsername').value.trim();
-  const p = $('#loginPass').value;
-  const auth = getAuth();
-  const err = $('#loginError');
-  if (u === auth.username && p === auth.password) {
-    setLoggedIn(true);
-    $('#loginScreen').classList.add('hidden');
-    $('#app').classList.add('show');
-    $('#userName').textContent = auth.username;
-    $('#userAvatar').textContent = (auth.username[0] || 'A').toUpperCase();
-    $('#loginPass').value = '';
-    err.classList.remove('show');
-    toast('Welcome back, ' + auth.username);
-    // Open the dashboard; if rendering fails (e.g. stale/corrupt data),
-    // reset the data store and retry so the dashboard always opens.
-    try {
-      switchView('dashboard');
-    } catch (err2) {
-      console.error('Dashboard render failed, resetting data:', err2);
-      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
-      db = load();
-      switchView('dashboard');
-    }
-  } else {
-    err.textContent = 'Invalid username or password. Please try again.';
-    err.classList.add('show');
-    $('#loginPass').value = '';
-  }
-  return false;
-}
-
-function doLogout() {
-  setLoggedIn(false);
-  $('#loginScreen').classList.remove('hidden');
-  $('#app').classList.remove('show');
-  $('#loginError').classList.remove('show');
-  toast('You have been logged out');
-}
-
-function changePassword() {
-  const auth = getAuth();
-  openModal('Change Password', `
-    <form class="form-grid" onsubmit="return submitPassword(event)">
-      <div class="form-group full"><label>Current Password *</label><input class="input" id="cp_current" type="password" required /></div>
-      <div class="form-group"><label>New Password *</label><input class="input" id="cp_new" type="password" minlength="4" required /></div>
-      <div class="form-group"><label>Confirm New Password *</label><input class="input" id="cp_confirm" type="password" minlength="4" required /></div>
-      <div class="form-actions full">
-        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-        <button type="submit" class="btn btn-primary">Update Password</button>
-      </div>
-    </form>`);
-}
-
-function submitPassword(e) {
-  e.preventDefault();
-  const auth = getAuth();
-  const cur = $('#cp_current').value;
-  const nw = $('#cp_new').value;
-  const cf = $('#cp_confirm').value;
-  if (cur !== auth.password) { toast('Current password is incorrect', 'error'); return false; }
-  if (nw.length < 4) { toast('New password must be at least 4 characters', 'error'); return false; }
-  if (nw !== cf) { toast('New passwords do not match', 'error'); return false; }
-  auth.password = nw;
-  saveAuth(auth);
-  closeModal();
-  toast('Password updated successfully');
-  return false;
-}
 
 /* ---------- Seed Data ---------- */
 function seedData() {
@@ -605,28 +513,17 @@ function init() {
   $('#customerSearch').addEventListener('input', renderCustomers);
   $('#billingStatusFilter').addEventListener('change', renderBilling);
   $('#renewalFilter').addEventListener('change', renderRenewals);
-  $('#logoutBtn').addEventListener('click', doLogout);
-  $('#changePassBtn').addEventListener('click', changePassword);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-  // Gate the app behind login
-  if (isLoggedIn()) {
-    const auth = getAuth();
-    $('#loginScreen').classList.add('hidden');
-    $('#app').classList.add('show');
-    $('#userName').textContent = auth.username;
-    $('#userAvatar').textContent = (auth.username[0] || 'A').toUpperCase();
-    try {
-      switchView('dashboard');
-    } catch (err) {
-      console.error('Dashboard render failed on load, resetting data:', err);
-      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
-      db = load();
-      switchView('dashboard');
-    }
-  } else {
-    $('#loginScreen').classList.remove('hidden');
-    $('#app').classList.remove('show');
+  // Open the dashboard directly (no login required).
+  // If rendering fails (e.g. stale/corrupt data), reset the data store and retry.
+  try {
+    switchView('dashboard');
+  } catch (err) {
+    console.error('Dashboard render failed on load, resetting data:', err);
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    db = load();
+    switchView('dashboard');
   }
 }
 
@@ -646,9 +543,5 @@ window.extend = extend;
 window.markPaid = markPaid;
 window.viewBill = viewBill;
 window.closeModal = closeModal;
-window.doLogin = doLogin;
-window.doLogout = doLogout;
-window.changePassword = changePassword;
-window.submitPassword = submitPassword;
 
 document.addEventListener('DOMContentLoaded', init);
