@@ -1,65 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NetCore ISP — Billing Management</title>
+  <meta charset="utf-8" />
+  <title>Hash Cnet HMS — SDC ISP Billing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta content="Hash Cnet HMS" name="description" />
+  <meta content="" name="author" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- Bootstrap 4 + Icons -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
-<body>
-  <!-- Login Screen -->
+
+<body id="body" class="auth-page card-bg">
+
+  <!-- ==================== LOGIN SCREEN ==================== -->
   <div class="login-screen" id="loginScreen">
-    <div class="login-card">
-      <div class="login-brand">
-        <div class="brand-logo">SDC</div>
-        <h1>SDC ISP</h1>
-        <span>Billing Management System</span>
+    <div class="container-fluid">
+      <div class="row vh-100">
+        <div class="col-12">
+          <div class="card-body p-0">
+            <div class="row d-flex align-items-center">
+              <div class="col-md-5 col-xl-3 col-lg-4">
+                <div class="card mb-0 border-0">
+                  <div class="card-body p-0">
+                    <div class="text-center p-3">
+                      <a href="#" class="logo logo-admin">
+                        <div class="auth-logo-box">SDC</div>
+                      </a>
+                      <h4 class="mt-3 mb-1 fw-semibold font-18">Hash Cnet HMS</h4>
+                      <p class="text-muted mb-0">Sign in to continue.</p>
+                    </div>
+                  </div>
+                  <div class="card-body pt-0">
+                    <form class="my-4" id="loginForm" onsubmit="return doLogin(event)">
+                      <div class="form-group mb-2">
+                        <label class="form-label" for="loginUsername">Username</label>
+                        <input type="text" class="form-control" required id="loginUsername" name="username" placeholder="Enter username" autocomplete="username" />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="loginPass">Password</label>
+                        <input type="password" class="form-control" name="password" id="loginPass" placeholder="Enter password" autocomplete="current-password" />
+                      </div>
+                      <div class="login-error" id="loginError"></div>
+                      <div class="form-group mb-0 row">
+                        <div class="col-12">
+                          <div class="d-grid mt-3">
+                            <button class="btn btn-primary btn-block" type="submit">Log In <i class="fas fa-sign-in-alt ms-1"></i></button>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                    <div class="login-hint text-center text-muted">
+                      Default login &mdash; <strong>admin</strong> / <strong>admin123</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-7 col-xl-9 col-lg-8 p-0 vh-100 d-flex justify-content-center auth-bg">
+                <div class="accountbg d-flex align-items-center">
+                  <div class="account-title text-center text-white">
+                    <div class="auth-logo-box thumb-sm">SDC</div>
+                    <h4 class="mt-3 text-white">Welcome To <span class="text-warning">Hash Cnet HMS</span></h4>
+                    <h1 class="text-white">Let's Get Started</h1>
+                    <div class="border w-25 mx-auto border-warning"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <form class="login-form" id="loginForm" onsubmit="return doLogin(event)">
-        <div class="form-group">
-          <label>Username</label>
-          <input class="input" id="loginUsername" autocomplete="username" placeholder="Enter username" required />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input class="input" id="loginPass" type="password" autocomplete="current-password" placeholder="Enter password" required />
-        </div>
-        <div class="login-error" id="loginError"></div>
-        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-      </form>
-      <div class="login-hint">Default login &mdash; username: <strong>admin</strong> &nbsp;|&nbsp; password: <strong>admin123</strong></div>
     </div>
   </div>
 
-  <div class="app">
+  <!-- ==================== APP (DASHBOARD) ==================== -->
+  <div class="app" id="app">
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
+    <div class="left-side-menu sidebar-dark" id="sidebar">
       <div class="brand">
         <div class="brand-logo">SDC</div>
         <div class="brand-text">
-          <h1>SDC ISP</h1>
-          <span>Billing Manager</span>
+          <h5>Hash Cnet HMS</h5>
+          <span>ISP Billing Manager</span>
         </div>
       </div>
-      <nav class="nav">
-        <button class="nav-item active" data-view="dashboard">
-          <span class="nav-icon">📊</span> Dashboard
-        </button>
-        <button class="nav-item" data-view="customers">
-          <span class="nav-icon">👥</span> Customers
-        </button>
-        <button class="nav-item" data-view="billing">
-          <span class="nav-icon">🧾</span> Billing
-        </button>
-        <button class="nav-item" data-view="plans">
-          <span class="nav-icon">📡</span> Plans
-        </button>
-        <button class="nav-item" data-view="renewals">
-          <span class="nav-icon">🔄</span> Renewals
-        </button>
-      </nav>
+      <div class="sidebar-content">
+        <ul class="metismenu" id="side-menu">
+          <li class="menu-title">Menu</li>
+          <li>
+            <a href="#" class="nav-item active" data-view="dashboard">
+              <i class="fas fa-tachometer-alt"></i><span> Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-view="customers">
+              <i class="fas fa-users"></i><span> Customers</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-view="billing">
+              <i class="fas fa-file-invoice-dollar"></i><span> Billing</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-view="plans">
+              <i class="fas fa-wifi"></i><span> Plans</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" data-view="renewals">
+              <i class="fas fa-sync-alt"></i><span> Renewals</span>
+            </a>
+          </li>
+        </ul>
+      </div>
       <div class="sidebar-footer">
         <div class="storage-status">
           <span class="dot"></span> Data saved locally
@@ -70,130 +127,204 @@
             <span class="user-name" id="userName">admin</span>
           </div>
           <div class="user-actions">
-            <button class="btn btn-ghost btn-sm" id="changePassBtn">Change Password</button>
-            <button class="btn btn-danger btn-sm" id="logoutBtn">Logout</button>
+            <button class="btn btn-light btn-sm" id="changePassBtn"><i class="fas fa-key"></i> Change Password</button>
+            <button class="btn btn-danger btn-sm" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
           </div>
         </div>
-      </div>
-    </aside>
-
-    <!-- Main -->
-    <main class="main">
-      <header class="topbar">
-        <button class="menu-toggle" id="menuToggle">☰</button>
-        <h2 id="pageTitle">Dashboard</h2>
-        <div class="topbar-actions">
-          <button class="btn btn-primary" id="quickAddBtn">+ New Customer</button>
-        </div>
-      </header>
-
-      <section class="content">
-        <!-- DASHBOARD -->
-        <div class="view active" id="view-dashboard">
-          <div class="stats-grid" id="statsGrid"></div>
-          <div class="dashboard-grid">
-            <div class="card">
-              <div class="card-header">
-                <h3>Recent Bills</h3>
-                <button class="btn btn-ghost" data-goto="billing">View all</button>
-              </div>
-              <div class="table-wrap"><table class="table" id="recentBillsTable"></table></div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <h3>Upcoming Renewals</h3>
-                <button class="btn btn-ghost" data-goto="renewals">View all</button>
-              </div>
-              <div class="table-wrap"><table class="table" id="upcomingRenewalsTable"></table></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CUSTOMERS -->
-        <div class="view" id="view-customers">
-          <div class="card">
-            <div class="card-header">
-              <h3>All Customers</h3>
-              <div class="card-actions">
-                <input type="text" class="input search-input" id="customerSearch" placeholder="Search customers..." />
-                <button class="btn btn-primary" id="addCustomerBtn">+ Add Customer</button>
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table class="table" id="customersTable"></table>
-            </div>
-          </div>
-        </div>
-
-        <!-- BILLING -->
-        <div class="view" id="view-billing">
-          <div class="card">
-            <div class="card-header">
-              <h3>Bills & Payments</h3>
-              <div class="card-actions">
-                <select class="input" id="billingStatusFilter">
-                  <option value="all">All statuses</option>
-                  <option value="paid">Paid</option>
-                  <option value="pending">Pending</option>
-                  <option value="overdue">Overdue</option>
-                </select>
-                <button class="btn btn-primary" id="generateBillsBtn">Generate Monthly Bills</button>
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table class="table" id="billsTable"></table>
-            </div>
-          </div>
-        </div>
-
-        <!-- PLANS -->
-        <div class="view" id="view-plans">
-          <div class="card">
-            <div class="card-header">
-              <h3>Internet Plans</h3>
-              <button class="btn btn-primary" id="addPlanBtn">+ Add Plan</button>
-            </div>
-            <div class="table-wrap">
-              <table class="table" id="plansTable"></table>
-            </div>
-          </div>
-        </div>
-
-        <!-- RENEWALS -->
-        <div class="view" id="view-renewals">
-          <div class="card">
-            <div class="card-header">
-              <h3>Renewals</h3>
-              <div class="card-actions">
-                <select class="input" id="renewalFilter">
-                  <option value="all">All</option>
-                  <option value="upcoming">Upcoming</option>
-                  <option value="expired">Expired</option>
-                  <option value="active">Active</option>
-                </select>
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table class="table" id="renewalsTable"></table>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-      <div class="modal">
-        <div class="modal-header">
-          <h3 id="modalTitle">Title</h3>
-          <button class="modal-close" id="modalClose">✕</button>
-        </div>
-        <div class="modal-body" id="modalBody"></div>
       </div>
     </div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
+    <!-- Main -->
+    <div class="content-page">
+      <div class="navbar-custom topbar">
+        <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <h4 class="page-title" id="pageTitle">Dashboard</h4>
+        <div class="topbar-actions ml-auto">
+          <button class="btn btn-primary" id="quickAddBtn"><i class="fas fa-user-plus"></i> New Customer</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="container-fluid">
+          <!-- DASHBOARD -->
+          <div class="view active" id="view-dashboard">
+            <div class="row">
+              <div class="col-12">
+                <div class="page-title-box">
+                  <h4 class="page-title">Dashboard</h4>
+                </div>
+              </div>
+            </div>
+            <div class="row stats-grid" id="statsGrid"></div>
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-header-custom">
+                      <h4 class="card-title">Recent Bills</h4>
+                      <button class="btn btn-sm btn-outline-primary" data-goto="billing">View all</button>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-centered mb-0" id="recentBillsTable"></table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-header-custom">
+                      <h4 class="card-title">Upcoming Renewals</h4>
+                      <button class="btn btn-sm btn-outline-primary" data-goto="renewals">View all</button>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0" id="upcomingRenewalsTable"></table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CUSTOMERS -->
+          <div class="view" id="view-customers">
+            <div class="row">
+              <div class="col-12">
+                <div class="page-title-box">
+                  <h4 class="page-title">Customers</h4>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-header-custom">
+                      <h4 class="card-title">All Customers</h4>
+                      <div class="card-actions">
+                        <input type="text" class="form-control search-input" id="customerSearch" placeholder="Search customers..." />
+                        <button class="btn btn-primary" id="addCustomerBtn"><i class="fas fa-user-plus"></i> Add Customer</button>
+                      </div>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0" id="customersTable"></table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BILLING -->
+          <div class="view" id="view-billing">
+            <div class="row">
+              <div class="col-12">
+                <div class="page-title-box">
+                  <h4 class="page-title">Billing</h4>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-header-custom">
+                      <h4 class="card-title">Bills &amp; Payments</h4>
+                      <div class="card-actions">
+                        <select class="form-control" id="billingStatusFilter">
+                          <option value="all">All statuses</option>
+                          <option value="paid">Paid</option>
+                          <option value="pending">Pending</option>
+                          <option value="overdue">Overdue</option>
+                        </select>
+                        <button class="btn btn-primary" id="generateBillsBtn"><i class="fas fa-file-invoice"></i> Generate Monthly Bills</button>
+                      </div>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0" id="billsTable"></table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PLANS -->
+          <div class="view" id="view-plans">
+            <div class="row">
+              <div class="col-12">
+                <div class="page-title-box">
+                  <h4 class="page-title">Plans</h4>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-header-custom">
+                      <h4 class="card-title">Internet Plans</h4>
+                      <button class="btn btn-primary" id="addPlanBtn"><i class="fas fa-plus"></i> Add Plan</button>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0" id="plansTable"></table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RENEWALS -->
+          <div class="view" id="view-renewals">
+            <div class="row">
+              <div class="col-12">
+                <div class="page-title-box">
+                  <h4 class="page-title">Renewals</h4>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card-header-custom">
+                      <h4 class="card-title">Renewals</h4>
+                      <div class="card-actions">
+                        <select class="form-control" id="renewalFilter">
+                          <option value="all">All</option>
+                          <option value="upcoming">Upcoming</option>
+                          <option value="expired">Expired</option>
+                          <option value="active">Active</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0" id="renewalsTable"></table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Title</h5>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
 
   <script src="app.js"></script>
 </body>

@@ -32,6 +32,7 @@ function doLogin(e) {
   if (u === auth.username && p === auth.password) {
     setLoggedIn(true);
     $('#loginScreen').classList.add('hidden');
+    $('#app').classList.add('show');
     $('#userName').textContent = auth.username;
     $('#userAvatar').textContent = (auth.username[0] || 'A').toUpperCase();
     $('#loginPass').value = '';
@@ -49,6 +50,7 @@ function doLogin(e) {
 function doLogout() {
   setLoggedIn(false);
   $('#loginScreen').classList.remove('hidden');
+  $('#app').classList.remove('show');
   $('#loginError').classList.remove('show');
   toast('You have been logged out');
 }
@@ -203,7 +205,7 @@ function render(view) {
   else if (view === 'renewals') renderRenewals();
 }
 
-const empty = (msg) => `<tr><td colspan="5"><div class="empty"><div class="empty-icon">📭</div>${msg}</div></td></tr>`;
+const empty = (msg) => `<tr><td colspan="5"><div class="empty"><div class="empty-icon">📩</div>${msg}</div></td></tr>`;
 
 /* ============ DASHBOARD ============ */
 function renderDashboard() {
@@ -259,7 +261,7 @@ function renderDashboard() {
         <td>${r.endDate}</td>
         <td><span class="badge badge-${r.status}">${r.status}</span></td>
       </tr>`;
-    }).join('')}</tbody>` : empty('No upcoming renewals');
+    }).join('')}</tbody>` : '';
 }
 
 /* ============ CUSTOMERS ============ */
@@ -287,7 +289,7 @@ function renderCustomers() {
           <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${c.id}')">Del</button>
         </td>
       </tr>`;
-    }).join('')}</tbody>` : empty('No customers found');
+    }).join('')}</tbody>` : '';
 }
 
 function customerForm(c) {
@@ -404,7 +406,7 @@ function renderBilling() {
           <button class="btn btn-ghost btn-sm" onclick="viewBill('${b.id}')">History</button>
         </td>
       </tr>`;
-    }).join('')}</tbody>` : empty('No bills');
+    }).join('')}</tbody>` : '';
 }
 
 function generateBills() {
@@ -471,7 +473,7 @@ function renderPlans() {
           <button class="btn btn-danger btn-sm" onclick="deletePlan('${p.id}')">Del</button>
         </td>
       </tr>`;
-    }).join('')}</tbody>` : empty('No plans');
+    }).join('')}</tbody>` : '';
 }
 
 function planForm(p) {
@@ -536,7 +538,7 @@ function renderRenewals() {
           <button class="btn btn-ghost btn-sm" onclick="extendPlan('${r.id}')">Extend</button>
         </td>
       </tr>`;
-    }).join('')}</tbody>` : empty('No renewals');
+    }).join('')}</tbody>` : '';
 }
 
 function renewPlan(id) {
@@ -594,11 +596,13 @@ function init() {
   if (isLoggedIn()) {
     const auth = getAuth();
     $('#loginScreen').classList.add('hidden');
+    $('#app').classList.add('show');
     $('#userName').textContent = auth.username;
     $('#userAvatar').textContent = (auth.username[0] || 'A').toUpperCase();
     switchView('dashboard');
   } else {
     $('#loginScreen').classList.remove('hidden');
+    $('#app').classList.remove('show');
   }
 }
 
