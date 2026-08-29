@@ -4,6 +4,14 @@ A complete, self-contained **Internet Service Provider (ISP) customer billing ma
 
 ## ✨ Features
 
+### 🔐 Authentication
+- Login screen with username and password
+- Default admin account: **admin** / **admin123**
+- All pages (dashboard, customers, billing, plans, renewals) are protected behind login
+- Change password from within the app (stored in localStorage)
+- Logout button returns to the login screen
+- Clear error message for wrong credentials
+
 ### 👥 Customer Management
 - Add new customers (name, phone, address, email, connection type)
 - View, edit, and delete customers

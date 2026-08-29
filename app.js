@@ -4,6 +4,84 @@
    ============================================================ */
 
 const STORAGE_KEY = 'sdc_isp_data_v1';
+const AUTH_KEY = 'sdc_isp_auth_v1';
+const SESSION_KEY = 'sdc_isp_session_v1';
+
+/* ---------- Authentication ---------- */
+function getAuth() {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  // Default admin account
+  const def = { username: 'admin', password: 'admin123' };
+  localStorage.setItem(AUTH_KEY, JSON.stringify(def));
+  return def;
+}
+function saveAuth(a) { localStorage.setItem(AUTH_KEY, JSON.stringify(a)); }
+
+function isLoggedIn() { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+function setLoggedIn(v) { v ? sessionStorage.setItem(SESSION_KEY, '1') : sessionStorage.removeItem(SESSION_KEY); }
+
+function doLogin(e) {
+  e.preventDefault();
+  const u = $('#loginUsername').value.trim();
+  const p = $('#loginPass').value;
+  const auth = getAuth();
+  const err = $('#loginError');
+  if (u === auth.username && p === auth.password) {
+    setLoggedIn(true);
+    $('#loginScreen').classList.add('hidden');
+    $('#userName').textContent = auth.username;
+    $('#userAvatar').textContent = (auth.username[0] || 'A').toUpperCase();
+    $('#loginPass').value = '';
+    err.classList.remove('show');
+    toast('Welcome back, ' + auth.username);
+    switchView('dashboard');
+  } else {
+    err.textContent = 'Invalid username or password. Please try again.';
+    err.classList.add('show');
+    $('#loginPass').value = '';
+  }
+  return false;
+}
+
+function doLogout() {
+  setLoggedIn(false);
+  $('#loginScreen').classList.remove('hidden');
+  $('#loginError').classList.remove('show');
+  toast('You have been logged out');
+}
+
+function changePassword() {
+  const auth = getAuth();
+  openModal('Change Password', `
+    <form class="form-grid" onsubmit="return submitPassword(event)">
+      <div class="form-group full"><label>Current Password *</label><input class="input" id="cp_current" type="password" required /></div>
+      <div class="form-group"><label>New Password *</label><input class="input" id="cp_new" type="password" minlength="4" required /></div>
+      <div class="form-group"><label>Confirm New Password *</label><input class="input" id="cp_confirm" type="password" minlength="4" required /></div>
+      <div class="form-actions full">
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update Password</button>
+      </div>
+    </form>`);
+}
+
+function submitPassword(e) {
+  e.preventDefault();
+  const auth = getAuth();
+  const cur = $('#cp_current').value;
+  const nw = $('#cp_new').value;
+  const cf = $('#cp_confirm').value;
+  if (cur !== auth.password) { toast('Current password is incorrect', 'error'); return false; }
+  if (nw.length < 4) { toast('New password must be at least 4 characters', 'error'); return false; }
+  if (nw !== cf) { toast('New passwords do not match', 'error'); return false; }
+  auth.password = nw;
+  saveAuth(auth);
+  closeModal();
+  toast('Password updated successfully');
+  return false;
+}
 
 /* ---------- Seed Data ---------- */
 function seedData() {
@@ -26,6 +104,7 @@ function seedData() {
     { id: 'c5', name: 'Kiran Maharjan', phone: '9801000005', address: 'Patan, Lalitpur', email: 'kiran@example.com', connectionType: 'Wireless', planId: 'p2', joinDate: fmt(addDays(today, -30)), status: 'active' },
   ];
 
+  // Renewal dates: some expired, some upcoming
   const renewals = [
     { id: 'r1', customerId: 'c1', planId: 'p2', startDate: fmt(addDays(today, -5)), endDate: fmt(addDays(today, 25)), status: 'active' },
     { id: 'r2', customerId: 'c2', planId: 'p3', startDate: fmt(addDays(today, -10)), endDate: fmt(addDays(today, 20)), status: 'active' },
@@ -91,6 +170,7 @@ function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
+/* ---------- Navigation ---------- */
 const viewTitles = {
   dashboard: 'Dashboard', customers: 'Customers', billing: 'Billing',
   plans: 'Plans', renewals: 'Renewals'
@@ -105,6 +185,7 @@ function switchView(view) {
   render(view);
 }
 
+/* ---------- Modal ---------- */
 function openModal(title, bodyHtml) {
   $('#modalTitle').textContent = title;
   $('#modalBody').innerHTML = bodyHtml;
@@ -112,6 +193,7 @@ function openModal(title, bodyHtml) {
 }
 function closeModal() { $('#modalOverlay').classList.remove('open'); }
 
+/* ---------- Render ---------- */
 function render(view) {
   if (!view) view = document.querySelector('.nav-item.active').dataset.view;
   if (view === 'dashboard') renderDashboard();
@@ -148,6 +230,7 @@ function renderDashboard() {
       </div>
     </div>`).join('');
 
+  // Recent bills
   const recentBills = [...db.bills].sort((a, b) => b.dueDate.localeCompare(a.dueDate)).slice(0, 5);
   $('#recentBillsTable').innerHTML = recentBills.length ? `
     <thead><tr><th>Customer</th><th>Month</th><th>Amount</th><th>Status</th></tr></thead>
@@ -161,6 +244,7 @@ function renderDashboard() {
       </tr>`;
     }).join('')}</tbody>` : empty('No bills yet');
 
+  // Upcoming renewals
   const upcoming = db.renewals
     .map(r => ({ ...r, status: renewalStatus(r) }))
     .filter(r => r.status === 'upcoming' || r.status === 'expired')
@@ -255,6 +339,7 @@ function returnCustomer(e) {
   } else {
     const c = { id: uid('c'), ...data, joinDate: todayStr() };
     db.customers.push(c);
+    // auto-create renewal
     const p = planById(c.planId);
     db.renewals.push({ id: uid('r'), customerId: c.id, planId: c.planId, startDate: todayStr(), endDate: addDaysStr(p ? p.validity : 30), status: 'active' });
     toast('Customer added');
@@ -501,10 +586,23 @@ function init() {
   $('#customerSearch').addEventListener('input', renderCustomers);
   $('#billingStatusFilter').addEventListener('change', renderBilling);
   $('#renewalFilter').addEventListener('change', renderRenewals);
+  $('#logoutBtn').addEventListener('click', doLogout);
+  $('#changePassBtn').addEventListener('click', changePassword);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-  switchView('dashboard');
+
+  // Gate the app behind login
+  if (isLoggedIn()) {
+    const auth = getAuth();
+    $('#loginScreen').classList.add('hidden');
+    $('#userName').textContent = auth.username;
+    $('#userAvatar').textContent = (auth.username[0] || 'A').toUpperCase();
+    switchView('dashboard');
+  } else {
+    $('#loginScreen').classList.remove('hidden');
+  }
 }
 
+// expose for inline onclick handlers
 window.addCustomer = addCustomer;
 window.editCustomer = editCustomer;
 window.deleteCustomer = deleteCustomer;
@@ -520,5 +618,9 @@ window.extend = extend;
 window.markPaid = markPaid;
 window.viewBill = viewBill;
 window.closeModal = closeModal;
+window.doLogin = doLogin;
+window.doLogout = doLogout;
+window.changePassword = changePassword;
+window.submitPassword = submitPassword;
 
 document.addEventListener('DOMContentLoaded', init);
